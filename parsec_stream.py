@@ -1,5 +1,5 @@
 import socket
-
+import random
 from parsec_message import ParsecMessage
 from parsec_header import ParsecHeader
 
@@ -12,8 +12,12 @@ class ParsecStream:
     # The socket being utilised by this object.
     socket = socket.socket()
 
+    # Randomly generated session identifier.
+    session_id = 0
+
     # Connects to the Parsec socket.
     def connect(self):
+        session_id = random.randint(0, 0xFFFFFFFF)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.connect(self.parsec_socket_path)
 
@@ -23,6 +27,9 @@ class ParsecStream:
 
     # Sends the given Parsec message to the Parsec stream, and awaits a response.
     def send(self, msg: ParsecMessage):
+        # Set message session ID header.
+        msg.header.session_handle = self.session_id
+
         # Send serialised message to stream.
         self.socket.sendall(msg.serialise())
 
