@@ -1,12 +1,13 @@
+from parsec_enums import ParsecMessageOpcode
 from parsec_message import ParsecMessage
 from parsec_stream import ParsecStream
 from messages.ping_pb2 import Operation, Result
 #Serialize to String
 
 class ParsecPing(ParsecMessage):
-    def init(self):
+    def __init__(self):
         super(ParsecMessage)
-        self.header.opcode = 0x0001
+        self.header.opcode = ParsecMessageOpcode.OP_PING
         
 def ping(stream):
     #returns a tuple with the wire protocol versions

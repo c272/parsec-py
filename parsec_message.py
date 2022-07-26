@@ -16,7 +16,7 @@ class ParsecMessage:
     # Writes the current request to file.
     # You do not need to manually set header lengths, this function will perform that for you.
     def serialise(self):
-        body_bytes = bytearray(self.body, "utf8")
+        body_bytes = bytearray(self.body.encode())
 
         # Set header lengths.
         self.header.auth_length = len(self.authentication)

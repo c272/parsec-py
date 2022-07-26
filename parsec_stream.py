@@ -49,13 +49,17 @@ class ParsecStream:
         # Set the authentication footer based on type.
         msg.header.auth_type = int(self.auth_type)
         if self.auth_type == ParsecAuthenticationType.DIRECT_AUTH:
-            msg.authentication = self.auth_app_id
+            msg.authentication = self.auth_app_id.encode()
         elif self.auth_type == ParsecAuthenticationType.UNIX_PEER_AUTH:
             msg.authentication = self.auth_proc_uid
         elif self.auth_type == ParsecAuthenticationType.NO_AUTH:
             msg.authentication = bytearray() # Do nothing.
         else:
             print("WARN: Unsupported authentication type used. Ignoring auth footer...")
+
+        # Set content & authentication length.
+        msg.header.content_length = len(msg.body.encode())
+        msg.header.auth_length = len(msg.authentication)
 
         # Send serialised message to stream.
         self.socket.sendall(msg.serialise())
