@@ -2,7 +2,7 @@ from enum import IntEnum
 import os
 import socket
 import random
-from parsec_message import ParsecMessage
+from parsec_message import ParsecMessage, ParsecMessageErrorType
 from parsec_header import ParsecHeader
 
 class AuthenticationType(IntEnum):
@@ -11,6 +11,14 @@ class AuthenticationType(IntEnum):
     TOKEN_AUTH = 0x2
     UNIX_PEER_AUTH = 0x3
     JWT_VID_AUTH = 0x4
+
+class ParsecMessageException(Exception):
+    """Represents a single message exception returned from the Parsec stream."""
+    status_code = 0
+
+    def __init__(self, msg: ParsecMessage):
+        status_code = ParsecMessageErrorType(msg.header.status)
+
 
 class ParsecStream:
     """Represents a simple class to interact with the Parsec Unix domain socket."""
@@ -76,6 +84,11 @@ class ParsecStream:
         response_bytes.extend(header_buf)
         response_bytes.extend(content_buf)
         response.deserialise(response_bytes)
+
+        # If the response contains an error, throw an exception.
+        if response.is_error():
+            raise ParsecMessageException(response)
+            
         return response
 
     # Enables direct authentication mode, using the supplied application identity string (UTF8).
