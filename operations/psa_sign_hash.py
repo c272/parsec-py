@@ -1,6 +1,6 @@
-from messages.psa_sign_hash_pb2 import Operation,Result
-from parsec_enums import ParsecMessageOpcode
-from parsec_message import ParsecMessage
+from ..messages.psa_sign_hash_pb2 import Operation,Result
+from ..parsec_enums import ParsecMessageOpcode
+from ..parsec_message import ParsecMessage
 
 class SignHashMessage(ParsecMessage):
 	def __init__(self, body):
@@ -18,3 +18,5 @@ def psa_sign_hash(stream, key_name, hash_msg, algorithm):
 	
 	reply = stream.send(msg)
 	return reply.signature
+
+__all__ = ["psa_sign_hash"]
