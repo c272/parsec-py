@@ -3,6 +3,9 @@ import struct
 class ParsecHeader:
     """A simple class to represent the fixed Parsec header."""
 
+    # Static length of the header in bytes.
+    HEADER_LENGTH = 36
+
     # Identifies the back-end service provider for which the request is intended. 
     provider = 0
 
@@ -37,7 +40,7 @@ class ParsecHeader:
         resv = 0
 
         # Pack into struct.
-        return struct.pack("IHBBHBQBBBIHIHH", 
+        return struct.pack("=IHBBHBQBBBIHIHH", 
             magic_bytes,
             header_remainder,
             major_version,
@@ -57,7 +60,7 @@ class ParsecHeader:
     # Deserializes the given byte buffer into this header structure.
     def deserialise(self, buf):
         # Unpack from struct.
-        header_tuple = struct.unpack("IHBBHBQBBBIHIHH", buf)
+        header_tuple = struct.unpack("=IHBBHBQBBBIHIHH", buf)
 
         self.provider = header_tuple[5]
         self.session_handle = header_tuple[6]
