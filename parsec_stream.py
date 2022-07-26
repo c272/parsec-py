@@ -17,7 +17,7 @@ class ParsecStream:
 
     # Connects to the Parsec socket.
     def connect(self):
-        session_id = random.randint(0, 0xFFFFFFFF)
+        self.session_id = random.randint(0, 0xFFFFFFFF)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.connect(self.parsec_socket_path)
 
