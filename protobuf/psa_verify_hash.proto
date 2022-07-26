@@ -4,13 +4,15 @@
  */
 syntax = "proto3";
 
-package psa_generate_key;
+package psa_verify_hash;
 
-import "psa_key_attributes.proto";
+import "psa_algorithm.proto";
 
 message Operation {
   string key_name = 1;
-  psa_key_attributes.KeyAttributes attributes = 2;
+  psa_algorithm.Algorithm.AsymmetricSignature alg = 2;
+  bytes hash = 3;
+  bytes signature = 4;
 }
 
 message Result {}

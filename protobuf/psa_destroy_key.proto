@@ -4,8 +4,8 @@
  */
 syntax = "proto3";
 
-package psa_export_public_key;
+package psa_destroy_key;
 
 message Operation { string key_name = 1; }
 
-message Result { bytes data = 1; }
+message Result {}

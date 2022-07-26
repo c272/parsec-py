@@ -4,13 +4,14 @@
  */
 syntax = "proto3";
 
-package psa_hash_compute;
+package psa_hash_compare;
 
 import "psa_algorithm.proto";
 
 message Operation {
   psa_algorithm.Algorithm.Hash alg = 1;
   bytes input = 2;
+  bytes hash = 3;
 }
 
-message Result { bytes hash = 1; }
+message Result {}
