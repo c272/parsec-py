@@ -1,8 +1,12 @@
 
 BUILD_DIR=$(shell pwd)
 
-proto : messages/psa/*_pb2.py
+proto : messages/*_pb2.py
 
-messages/psa/%_pb2.py : protobuf/psa_%.proto
-	echo $^
-	protoc --python_out=${BUILD_DIR}/psa --proto_path=$(word 1,$(dir $^)) $(notdir $^)
+messages/%_pb2.py : protobuf/%.proto
+	mkdir -p $(dir $@)
+	protoc --python_out=$(dir $@) --proto_path=$(word 1,$(dir $^)) $(notdir $^)
+
+.PHONY: clean
+clean:
+	rm -r messages
