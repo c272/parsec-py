@@ -1,4 +1,4 @@
-from operations.ping import ParsecPing
+import operations.ping
 from parsec_header import ParsecHeader
 from parsec_message import ParsecMessage
 from parsec_stream import ParsecStream
@@ -16,17 +16,8 @@ stream = ParsecStream()
 stream.parsec_socket_path = args.socket_path
 stream.connect()
 
-# Craft a message.
-message = ParsecMessage()
-message.body = "Test!"
-message.authentication = bytearray()
-
-# Send a message through the stream.
-response = stream.send(message)
-print("Response length = " + str(len(response.body)))
-
 # Ping the API.
-(majwire, minwire) = ParsecPing()
+(majwire, minwire) = operations.ping.ping(stream)
 print("Min Wire Protocol Version")
 print(minwire)
 print("\n")
