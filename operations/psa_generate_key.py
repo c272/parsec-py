@@ -1,6 +1,6 @@
-from ..parsec_enums import ParsecMessageOpcode
-from ..parsec_message import ParsecMessage
-import ..key_attributes
+from parsec_enums import ParsecMessageOpcode
+from parsec_message import ParsecMessage
+import key_attributes
 import protobuf
 
 
