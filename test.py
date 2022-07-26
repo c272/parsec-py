@@ -1,26 +1,17 @@
 from parsec_header import ParsecHeader
 from parsec_message import ParsecMessage
+from parsec_stream import ParsecStream
 
-# Header testing.
-header = ParsecHeader()
-header.content_length = 3920
-header.auth_type = 3
-header.opcode = 0x2
-header.session_handle = 0xEEEEEEEE
+# Test sending messages down the socket.
+# Open the stream.
+stream = ParsecStream()
+stream.parsec_socket_path = "/home/lawtan01/Downloads/quickstart-1.0.0-linux_x86/parsec.sock"
+stream.connect()
 
-byte_head = header.serialise()
-rev_head = ParsecHeader()
-rev_head.deserialise(byte_head)
-print("session handle: " + str(rev_head.session_handle) + "\n")
+# Craft a message.
+message = ParsecMessage()
+message.body = "Test!"
+message.authentication = bytearray()
 
-# Message testing.
-request = ParsecMessage()
-request.header = header
-request.body = "This is a test!"
-request.authentication = bytearray([0xE, 0xE, 0xE, 0xE, 0xE])
-req_encoded = request.serialise()
-
-req_decoded = ParsecMessage()
-req_decoded.deserialise(req_encoded)
-print("body = " + req_decoded.body)
-print("auth = " + str(req_decoded.authentication))
+response = stream.send(message)
+print("Response length = " + str(len(response.body)))
