@@ -11,8 +11,9 @@ class ParsecPing(ParsecMessage):
         
 def ping(stream):
     #returns a tuple with the wire protocol versions
-    msg = ParsecMessage()
-    reply = stream.send(msg)
+    msg = ParsecPing()
+    reply = Result()
+    reply.ParseFromString(stream.send(msg).body.encode("utf-8"))
     majwire = reply.wire_protocol_version_maj
     minwire = reply.wire_protocol_version_min
     return (majwire, minwire)
