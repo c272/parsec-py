@@ -1,5 +1,7 @@
 import struct
 
+from parsec_enums import ParsecAuthenticationType, ParsecMessageErrorType, ParsecMessageOpcode
+
 class ParsecHeader:
     """A simple class to represent the fixed Parsec header."""
 
@@ -13,7 +15,7 @@ class ParsecHeader:
     session_handle = 0
 
     # Authentication type (requests only).
-    auth_type = 0
+    auth_type = ParsecAuthenticationType.NO_AUTH
 
     # Length of the attached content (bytes).
     content_length = 0
@@ -22,10 +24,10 @@ class ParsecHeader:
     auth_length = 0
 
     # Opcode.
-    opcode = 0
+    opcode = ParsecMessageOpcode.NOOP
 
     # Status (responses only).
-    status = 0
+    status = ParsecMessageErrorType.SUCCESS
 
     # Serialises the current state of the Parsec header into valid bytes.
     def serialise(self):
@@ -50,11 +52,11 @@ class ParsecHeader:
             self.session_handle,
             content_type,
             accept_type,
-            self.auth_type,
+            int(self.auth_type),
             self.content_length,
             self.auth_length,
-            self.opcode,
-            self.status,
+            int(self.opcode),
+            int(self.status),
             resv)
 
     # Deserializes the given byte buffer into this header structure.
@@ -64,8 +66,8 @@ class ParsecHeader:
 
         self.provider = header_tuple[5]
         self.session_handle = header_tuple[6]
-        self.auth_type = header_tuple[9]
+        self.auth_type = ParsecAuthenticationType(header_tuple[9])
         self.content_length = header_tuple[10]
         self.auth_length = header_tuple[11]
-        self.opcode = header_tuple[12]
-        self.status = header_tuple[13]
+        self.opcode = ParsecMessageOpcode(header_tuple[12])
+        self.status = ParsecMessageErrorType(header_tuple[13])
