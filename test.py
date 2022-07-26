@@ -3,6 +3,8 @@ from parsec_header import ParsecHeader
 from parsec_message import ParsecMessage
 from parsec_stream import ParsecStream
 
+import operations.psa_generate_key
+
 import argparse
 
 parser = argparse.ArgumentParser(description="Test script for using parsec through PyParsec.")
@@ -23,3 +25,6 @@ print(minwire)
 print("\n")
 print("Max Wire Protocol Version")
 print(majwire)
+
+#result = operations.psa_generate_key.psa_generate_ecc_key_pair(stream, "generated key", 256)
+#print(result)
