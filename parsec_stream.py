@@ -1,7 +1,16 @@
+from enum import Enum
+import os
 import socket
 import random
 from parsec_message import ParsecMessage
 from parsec_header import ParsecHeader
+
+class AuthenticationType(Enum):
+    NO_AUTH = 0x0
+    DIRECT_AUTH = 0x1
+    TOKEN_AUTH = 0x2
+    UNIX_PEER_AUTH = 0x3
+    JWT_VID_AUTH = 0x4
 
 class ParsecStream:
     """Represents a simple class to interact with the Parsec Unix domain socket."""
@@ -14,6 +23,11 @@ class ParsecStream:
 
     # Randomly generated session identifier.
     session_id = 0
+
+    # The authentication type this stream is using.
+    auth_type = AuthenticationType.NO_AUTH
+    auth_app_id = ""
+    auth_proc_uid = 0
 
     # Connects to the Parsec socket.
     def connect(self):
@@ -29,6 +43,17 @@ class ParsecStream:
     def send(self, msg: ParsecMessage):
         # Set message session ID header.
         msg.header.session_handle = self.session_id
+
+        # Set the authentication footer based on type.
+        msg.header.auth_type = self.auth_type
+        if self.auth_type == AuthenticationType.DIRECT_AUTH:
+            msg.authentication = self.auth_app_id
+        elif self.auth_type == AuthenticationType.UNIX_PEER_AUTH:
+            msg.authentication = self.auth_proc_uid
+        elif self.auth_type == AuthenticationType.NO_AUTH:
+            msg.authentication = bytearray() # Do nothing.
+        else:
+            print("WARN: Unsupported authentication type used. Ignoring auth footer...")
 
         # Send serialised message to stream.
         self.socket.sendall(msg.serialise())
@@ -52,3 +77,12 @@ class ParsecStream:
         response_bytes.extend(content_buf)
         response.deserialise(response_bytes)
         return response
+
+    # Enables direct authentication mode, using the supplied application identity string (UTF8).
+    def enable_direct_authentication(self, application_identity: str):
+        self.auth_type = AuthenticationType.DIRECT_AUTH
+        self.auth_app_id = application_identity
+
+    def enable_unix_peer_authentication(self):
+        self.auth_type = AuthenticationType.UNIX_PEER_AUTH
+        self.auth_proc_uid = os.getuid()
