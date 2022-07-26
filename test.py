@@ -3,10 +3,17 @@ from parsec_header import ParsecHeader
 from parsec_message import ParsecMessage
 from parsec_stream import ParsecStream
 
+import argparse
+
+parser = argparse.ArgumentParser(description="Test script for using parsec through PyParsec.")
+parser.add_argument("socket_path", type=str)
+args = parser.parse_args()
+
+
 # Test sending messages down the socket.
 # Open the stream.
 stream = ParsecStream()
-stream.parsec_socket_path = "/home/lawtan01/Downloads/quickstart-1.0.0-linux_x86/parsec.sock"
+stream.parsec_socket_path = args.socket_path
 stream.connect()
 
 # Craft a message.
