@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import IntEnum
 import os
 import socket
 import random
 from parsec_message import ParsecMessage
 from parsec_header import ParsecHeader
 
-class AuthenticationType(Enum):
+class AuthenticationType(IntEnum):
     NO_AUTH = 0x0
     DIRECT_AUTH = 0x1
     TOKEN_AUTH = 0x2
@@ -45,7 +45,7 @@ class ParsecStream:
         msg.header.session_handle = self.session_id
 
         # Set the authentication footer based on type.
-        msg.header.auth_type = self.auth_type
+        msg.header.auth_type = int(self.auth_type)
         if self.auth_type == AuthenticationType.DIRECT_AUTH:
             msg.authentication = self.auth_app_id
         elif self.auth_type == AuthenticationType.UNIX_PEER_AUTH:
