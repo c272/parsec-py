@@ -1,6 +1,11 @@
 from ..parsec_enums import ParsecMessageOpcode
 from ..parsec_message import ParsecMessage
-import ..key_attributes
+
+from messages import psa_generate_key_pb2
+from messages import psa_key_attributes_pb2
+
+import key_attributes
+
 import protobuf
 
 
@@ -12,6 +17,4 @@ class GenerateKey(ParsecMessage):
         self.key_name = key_name
         self.attributes = attributes
 
-
-
-
+        proto_attributes = psa_key_attributes_pb2.KeyAttributes()
