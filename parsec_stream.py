@@ -6,19 +6,27 @@ from parsec_message import ParsecMessage
 from parsec_header import ParsecHeader
 from parsec_enums import *
 
+class ParsecStreamException(Exception):
+    """Represents a single stream exception returned from the Parsec stream."""
+    message = ""
+
+    def __init__(self, msg):
+        self.message = msg
+
+
 class ParsecMessageException(Exception):
     """Represents a single message exception returned from the Parsec stream."""
     status_code = 0
 
     def __init__(self, msg: ParsecMessage):
-        status_code = ParsecMessageErrorType(msg.header.status)
+        self.status_code = ParsecMessageErrorType(msg.header.status)
+
+    def __str__(self) -> str:
+        return str(self.status_code)
 
 
 class ParsecStream:
     """Represents a simple class to interact with the Parsec Unix domain socket."""
-
-    # The path of the Unix domain socket that Parsec is running on.
-    parsec_socket_path = "/run/parsec/parsec.sock"
 
     # The socket being utilised by this object.
     socket = socket.socket()
@@ -31,35 +39,39 @@ class ParsecStream:
     auth_app_id = ""
     auth_proc_uid = 0
 
+    def __init__(self, path = "/run/parsec/parsec.sock"):
+        self.socket_path = path
+        self.enable_unix_peer_authentication()
+
     # Connects to the Parsec socket.
     def connect(self):
         self.session_id = random.randint(0, 0xFFFFFFFF)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.socket.connect(self.parsec_socket_path)
+        self.socket.connect(self.socket_path)
 
     # Disconnects from the Parsec socket.
     def disconnect(self):
         self.socket.close()
 
     # Sends the given Parsec message to the Parsec stream, and awaits a response.
-    def send(self, msg: ParsecMessage):
+    def send(self, msg: ParsecMessage, proto_out = None):
+
+        # Connect to the Parsec socket.
+        self.connect()
+
         # Set message session ID header.
         msg.header.session_handle = self.session_id
 
         # Set the authentication footer based on type.
-        msg.header.auth_type = int(self.auth_type)
+        msg.header.auth_type = self.auth_type
         if self.auth_type == ParsecAuthenticationType.DIRECT_AUTH:
             msg.authentication = self.auth_app_id.encode()
         elif self.auth_type == ParsecAuthenticationType.UNIX_PEER_AUTH:
-            msg.authentication = self.auth_proc_uid
+            msg.authentication = self.auth_proc_uid.to_bytes(4, byteorder='little', signed=False)
         elif self.auth_type == ParsecAuthenticationType.NO_AUTH:
             msg.authentication = bytearray() # Do nothing.
         else:
             print("WARN: Unsupported authentication type used. Ignoring auth footer...")
-
-        # Set content & authentication length.
-        msg.header.content_length = len(msg.body.encode())
-        msg.header.auth_length = len(msg.authentication)
 
         # Send serialised message to stream.
         self.socket.sendall(msg.serialise())
@@ -86,6 +98,10 @@ class ParsecStream:
         # If the response contains an error, throw an exception.
         if response.is_error():
             raise ParsecMessageException(response)
+
+        # If a protobuf output structure is defined, deserialise protobuf into it.
+        if proto_out:
+            proto_out.parse(response.body)
             
         return response
 
@@ -94,6 +110,7 @@ class ParsecStream:
         self.auth_type = ParsecAuthenticationType.DIRECT_AUTH
         self.auth_app_id = application_identity
 
+    # Enables Unix peer authentication mode.
     def enable_unix_peer_authentication(self):
         self.auth_type = ParsecAuthenticationType.UNIX_PEER_AUTH
         self.auth_proc_uid = os.getuid()

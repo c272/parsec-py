@@ -1,12 +1,9 @@
+PROTO_FILES := $(wildcard protobuf/*.proto)
 
-BUILD_DIR=$(shell pwd)
+protobuf:
+	mkdir -p messages
+	protoc --python_betterproto_out=messages --proto_path=protobuf $(PROTO_FILES)
 
-proto : messages/*_pb2.py
-
-messages/%_pb2.py : protobuf/%.proto
-	mkdir -p $(dir $@)
-	protoc --python_out=$(dir $@) --proto_path=$(word 1,$(dir $^)) $(notdir $^)
-
-.PHONY: clean
+.PHONY: protobuf clean
 clean:
 	rm -r messages

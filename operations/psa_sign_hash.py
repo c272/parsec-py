@@ -1,6 +1,8 @@
-from messages.psa_sign_hash_pb2 import Operation,Result
+from messages.psa_sign_hash import Operation,Result
 from parsec_enums import ParsecMessageOpcode
 from parsec_message import ParsecMessage
+
+# todo: cleanup to new API
 
 class Message(ParsecMessage):
 	def __init__(self, body):
