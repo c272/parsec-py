@@ -1,4 +1,6 @@
 from operations.psa_export_public_key import PSAExportPublicKeyMessage
+from operations.psa_sign_hash import PSASignHashMessage
+from operations.psa_verify_hash import PSAVerifyHashMessage
 from parsec_message import ParsecMessage
 from parsec_stream import ParsecStream
 from operations.ping import PingMessage
@@ -7,6 +9,8 @@ from operations.psa_generate_key import PSAGenerateECCKeypairMessage
 from messages.ping import Result as PingResult
 from messages.psa_export_key import Result as PSAExportKeyResult
 from messages.psa_export_public_key import Result as PSAExportPublicKeyResult
+from messages.psa_sign_hash import Result as PSASignHashResult
+from messages.psa_verify_hash import Result as PSAVerifyHashResult
 from messages.psa_algorithm import AlgorithmHash
 from messages.psa_key_attributes import KeyTypeEccFamily, UsageFlags
 
@@ -71,4 +75,18 @@ class Parsec:
 
         # Send message.
         msg = PSAGenerateECCKeypairMessage(key_name, family, bits, hash_type, usage_flags)
+        self.send_to_provider(msg)
+
+    # Signs a precalculated hash or small message with the given key.
+    def psa_sign_hash(self, key_name, hash_msg, alg):
+        msg = PSASignHashMessage(key_name, hash_msg, alg)
+        reply = PSASignHashResult()
+        self.send_to_provider(msg, reply)
+
+        return reply.signature
+
+    # Verifies a signed hash or small message against a given key.
+    # Throws a PSA_INVALID_SIG error on hash invalidity.
+    def psa_verify_hash(self, key_name, alg, hash, signature):
+        msg = PSAVerifyHashMessage(key_name, alg, hash, signature)
         self.send_to_provider(msg)
