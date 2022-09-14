@@ -40,12 +40,12 @@ class ParsecStream:
     auth_proc_uid = 0
 
     def __init__(self, path = "/run/parsec/parsec.sock"):
+        self.session_id = random.randint(0, 0xFFFFFFFF)
         self.socket_path = path
         self.enable_unix_peer_authentication()
 
     # Connects to the Parsec socket.
     def connect(self):
-        self.session_id = random.randint(0, 0xFFFFFFFF)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.connect(self.socket_path)
 

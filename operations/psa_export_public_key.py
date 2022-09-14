@@ -1,23 +1,11 @@
-from messages.psa_export_public_key import Operation,Result
+from messages.psa_export_public_key import Operation as PSAExportPublicKeyOperation
 from parsec_enums import ParsecMessageOpcode
 from parsec_message import ParsecMessage
 
-# todo: cleanup to new API
-
-class Message(ParsecMessage):
-    def __init__(self, body):
-        super().__init__()
+# Represents a message for PSA public key export within Parsec.
+class PSAExportPublicKeyMessage(ParsecMessage):
+    def __init__(self, key_name):
         self.header.opcode = ParsecMessageOpcode.OP_PSA_EXPORT_PUBLIC_KEY
-        self.body = body.SerializeToString()
-
-def psa_export_public_key(stream, key_name):
-    op = Operation()
-    op.key_name = key_name
-
-    msg = Message(op)
-	
-    reply = Result()
-    reply.ParseFromString(stream.send(msg).body.encode("utf-8"))
-    return reply.data
-
-__all__ = ["psa_export_public_key"]
+        op = PSAExportPublicKeyOperation()
+        op.key_name = key_name
+        self.body = bytes(op)
